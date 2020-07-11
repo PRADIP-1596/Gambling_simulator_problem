@@ -1,12 +1,21 @@
-!/bin/bash -x
+#!/bin/bash
+
+#contants
 WIN=1
 STAKE=100
 BET=1
 MAX_PROFIT_PER_DAY=50
 MAX_LOSS_PER_DAY=-50
-saveAmount=100
-totalWin=0
-totalLose=0
+
+#variables
+minAmount=9999
+maxAmount=0
+saveAmount=0
+win=0
+lose=0
+luckyDay=0
+unLuckyDay=0
+day=0
 for (( day=1; day<=30; day++))
 do
 	wallet=0
@@ -20,23 +29,34 @@ do
 			wallet=$(($wallet-$BET))
 		fi
 	done
-echo $wallet
 
 if [ $wallet -eq 50 ]
 then
 	wins[$day]=$wallet
-	((totalWin++))
+	((win++))
 else
 	loose[$day]=$wallet
-	((totalLose++))
+	((lose++))
 fi
 saveAmount=$(($saveAmount+$wallet))
-done
-echo "days wins ${!wins[@]}--------$((50*$totalWin))"
-echo "days looses ${!loose[@]}-------$((50*$totalLose))"
-if (( $saveAmount >= 0 ))
+echo "----/  $saveAmount"
+if [ $saveAmount -lt $minAmount ]
 then
-	echo "Total profit amount $saveAmount"
-else
-	echo "Total loose amoutn $saveAmount"
+
+	unLuckyDay=$(($day))
+	minAmount=$saveAmount
 fi
+if [ $saveAmount -gt $maxAmount ]
+then
+	luckyDay=$(($day))
+	maxAmount=$saveAmount
+fi
+
+done
+
+echo "days wins ${!wins[@]}--------$((50*$win))"
+echo "days looses ${!loose[@]}-------$((50*$lose))"
+
+echo Luckiest day $luckyDay amount is $maxAmount
+echo Unluckiest day $unLuckyDay amount is $minAmount
+
